@@ -1234,6 +1234,8 @@ ek_write_name(proto_node *pnode, gchar* suffix, write_json_data* pdata)
 static void
 ek_write_hex(field_info *fi, write_json_data *pdata)
 {
+    json_dumper_begin_array(pdata->dumper);
+
     if (fi->hfinfo->bitmask!=0) {
         switch (fi->value.ftype->ftype) {
             case FT_INT8:
@@ -1269,6 +1271,13 @@ ek_write_hex(field_info *fi, write_json_data *pdata)
     else {
         json_write_field_hex_value(pdata, fi);
     }
+    /* Dump raw hex-encoded dissected information including position, length, bitmask, type */
+    json_dumper_value_anyf(pdata->dumper, "%" G_GINT32_MODIFIER "d", fi->start);
+    json_dumper_value_anyf(pdata->dumper, "%" G_GINT32_MODIFIER "d", fi->length);
+    json_dumper_value_anyf(pdata->dumper, "%" G_GUINT64_FORMAT, fi->hfinfo->bitmask);
+    json_dumper_value_anyf(pdata->dumper, "%" G_GINT32_MODIFIER "d", (gint32)fi->value.ftype->ftype);
+
+    json_dumper_end_array(pdata->dumper);
 }
 
 static void
